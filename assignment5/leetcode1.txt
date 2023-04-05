@@ -1,0 +1,32 @@
+
+class Solution:
+
+    def majorityRecurse(self, nums: List[int]):
+
+        # base case
+        if len(nums) == 1:
+            return (nums[0], 1)
+
+        # recursive case
+        midpoint = int(len(nums) / 2)
+        leftMajor, leftcount = self.majorityRecurse(nums[:midpoint])
+        rightMajor, rightcount = self.majorityRecurse(nums[midpoint:])
+
+        # If the major of the left and the right are the same, that's the major of the whole array
+        if leftMajor == rightMajor:
+            return (rightMajor, leftcount + rightcount)
+        
+        # Otherwise, the major depends on how many times we counted the majority element of the left and the right
+        majorcount = rightcount
+        majorVal = rightMajor
+
+        if leftcount > rightcount:
+            majorcount = leftcount
+            majorVal = leftMajor
+
+        return (majorVal, majorcount)
+
+    def majorityElement(self, nums: List[int]) -> int:
+        majorVal, _ = self.majorityRecurse(nums)
+        return majorVal
+        

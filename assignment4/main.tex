@@ -1,0 +1,671 @@
+\documentclass[]{book}
+
+%These tell TeX which packages to use.
+\usepackage{array,epsfig}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsxtra}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{color}
+
+% JORDAN ADDED THESE
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+
+\usepackage[labelsep=period,singlelinecheck=false]{caption}   %%% Used to manipulate captions, puts period after figure number, and aligns captions to the left. %%%
+\usepackage{tabularx}  		%%% Allows you to construct tables that extend to page margins %%%
+\usepackage{subcaption} 			%%% used to manipulate subcaptions %%%
+
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{multirow}
+
+
+% -----------------------------------------
+
+
+%Here I define some theorem styles and shortcut commands for symbols I use often
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}
+\newtheorem*{rmk}{Remark}
+\newtheorem{lem}{Lemma}
+\newtheorem*{joke}{Joke}
+\newtheorem{ex}{Example}
+\newtheorem*{soln}{Solution}
+\newtheorem{prop}{Proposition}
+
+\newcommand{\lra}{\longrightarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\surj}{\twoheadrightarrow}
+\newcommand{\graph}{\mathrm{graph}}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\Z}{\bb{Z}}
+\newcommand{\Q}{\bb{Q}}
+\newcommand{\R}{\bb{R}}
+\newcommand{\C}{\bb{C}}
+\newcommand{\N}{\bb{N}}
+\newcommand{\M}{\mathbf{M}}
+\newcommand{\m}{\mathbf{m}}
+\newcommand{\MM}{\mathscr{M}}
+\newcommand{\HH}{\mathscr{H}}
+\newcommand{\Om}{\Omega}
+\newcommand{\Ho}{\in\HH(\Om)}
+\newcommand{\bd}{\partial}
+\newcommand{\del}{\partial}
+\newcommand{\bardel}{\overline\partial}
+\newcommand{\textdf}[1]{\textbf{\textsf{#1}}\index{#1}}
+\newcommand{\img}{\mathrm{img}}
+\newcommand{\ip}[2]{\left\langle{#1},{#2}\right\rangle}
+\newcommand{\inter}[1]{\mathrm{int}{#1}}
+\newcommand{\exter}[1]{\mathrm{ext}{#1}}
+\newcommand{\cl}[1]{\mathrm{cl}{#1}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\vol}{\mathrm{vol}}
+\newcommand{\cnt}{\mathrm{ct}}
+\newcommand{\osc}{\mathrm{osc}}
+\newcommand{\LL}{\mathbf{L}}
+\newcommand{\UU}{\mathbf{U}}
+\newcommand{\support}{\mathrm{support}}
+% \newcommand{\AND}{\;\wedge\;}
+% \newcommand{\OR}{\;\vee\;}
+\newcommand{\Oset}{\varnothing}
+\newcommand{\st}{\ni}
+\newcommand{\wh}{\widehat}
+
+%Pagination stuff.
+\setlength{\topmargin}{-.3 in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textheight}{9.in}
+\setlength{\textwidth}{6.5in}
+\pagestyle{empty}
+
+
+
+\begin{document}
+
+
+\begin{center}
+{\Large COMP 775 - Advanced Design and Analysis of Algorithms \hspace{0.5cm} Assignment 3}\\
+\textbf{Jordan Sturtz}\\ %You should put your name here
+3-08-2023 %You should write the date here.
+\end{center}
+
+\vspace{0.2 cm}
+
+\subsection*{Problem 6-2}
+A d-ary heap is like a binary heap, but (with one possible exception) non-leaf nodes have d children 
+instead of 2 children
+\begin{enumerate}
+    \item How would you represent a d-ary heap in an array?
+    
+    \textbf{Answer:} 
+    
+    Like the binary heap, the d-ary heap would be stored 
+    in a contiguous array, such that the highest priority element comes first, 
+    starting from index 1. But the relationship betweeen
+    parent and child is more complicated in this contiguous array. Specifically,
+    we would like an equation that relates the index of a parent node to its
+    children in terms of $d$.
+
+    To get this equation, consider an arbitrary non-root node $n$ in an d-ary tree with height, $h$.
+    One way to think about this problem is to think about how we might count the number of
+    steps until we reach either the beginnning or ending index of $n$'s children. 
+    Consider that we traverse a d-ary by visiting first the right-siblings of $n$ and 
+    then all the children of the left-siblings of $n$. So let $l$ be the number of left siblings
+    of $n$, and let $r$ be the number of right siblings of $n$. A general formula
+    to compute the rightmost child of $n$ is therefore the following:
+
+    \begin{align*}
+        RIGHT(n) &= n + (l+1)d + r \\
+    \end{align*}
+
+    Let us now express $l$ and $r$ in terms of $n$, $d$, and $h$.
+
+    We note that $n$ must equal the combined nodes in the previous layer plus $l$ plus 1.
+    Therefore, 
+    \begin{align*}
+        n &= l + \sum_0^{h - 1} d^i + 1\\
+        l &= n - \sum_0^{h - 1} d^i - 1\\
+    \end{align*}
+
+    Similarly, the quantity $r$ must equal the total sum of all the rows up to and
+    including $n$ minus $n$ itself:
+
+    \begin{align*}
+        r &= \sum_0^h d^i - n \\
+    \end{align*}
+
+    Substituting into our formula for the last child of $n$:
+
+    \begin{align*}
+        RIGHT(n) &= n + (n - \sum_0^{h - 1} d^i - 1 + 1)d + \sum_0^h d^i - n \\
+                 &= n + nd - d\sum_0^{h - 1} d^i + \sum_0^h d^i - n \\
+                 &= nd - d\sum_0^{h - 1} d^i + \sum_0^h d^i  \\
+                 &= nd - \sum_1^{h} d^i + \sum_0^h d^i  \\
+                 &= nd + \sum_0^h d^i - \sum_1^{h} d^i\\
+                 &= nd + 1
+    \end{align*}
+
+    Now that we have a general formula for RIGHT(n), we can easily compute LEFT(n)
+    or any child in between by noting that LEFT(n) must equal RIGHT(n) - d + 1.
+    We can also compute PARENT(n). In summary, we have these three 
+    formulae for computing indices relative to a node n:
+    \begin{itemize}
+        \item LEFT(n) = $nd - d + 2$
+        \item RIGHT(n) = $nd+1$
+        \item PARENT(n) = $ \lfloor \frac{n - 1}{d} \rfloor$
+    \end{itemize}
+
+    \item What is the height of a d-ary heap of n elements in terms of n and d?
+
+    \textbf{Answer:} 
+    
+    First, we recognize that the size of the nodes of full d-ary trees follows a
+    predictable pattern: $n = d^0 + d^1 + d^2 \dots + d^h$, where $h$ is the height, $d$ is the number of children
+    of an internal node, and $h$ is the height of the tree. We therefore can solve for the relationship between
+    n, d, and h in the following way:
+
+    \begin{align*}
+        n &= d^0 + d^1 + d^2 \dots + d^h \\
+        dn &= d^1 + d^2 + d^3 \dots + d^h + d^{h+1} \\
+        dn - n &= d^{h+1} - 1 \\
+        dn - n + 1 &= d^{h+1} \\
+        h + 1 &= \log_d (dn - n + 1) \\
+        h &= \log_d (dn - n + 1) - 1
+    \end{align*}
+
+    \item Give an efficient implementation EXTRACT-MAX in a d-ary max-heap. Analyze its running time in terms of d and n.
+
+    \textbf{Answer:} 
+    
+    The largest value in the max-heap is the root. So merely getting that value is constant time. However,
+    the heap must be reconstructed when popping the root to preserve the heap property. So, to efficiently
+    extract the MAX, we need an efficient solution to HEAPIFY.
+
+    The algorithm to implement EXTRACT-MAX from a d-ary binary tree, A, is the following:
+
+    \begin{algorithm}[h]
+    \caption{EXTRACT\_MAX(A)}
+    \begin{algorithmic}[1]
+    \STATE max $\leftarrow$ A[1]
+    \STATE A[1] $\leftarrow$ A[A.heap\_size]
+    \STATE MAX\_HEAPIFY(A, 1)
+    \STATE return max
+    \end{algorithmic}
+    \end{algorithm}
+
+    \begin{algorithm}[h]
+    \caption{MAX\_HEAPIFY(A, i)}
+    \begin{algorithmic}[1]
+    \STATE n $\leftarrow$ A.heap\_size
+    \STATE d $\leftarrow$ A.d
+    \STATE leftchild $\leftarrow$ $d(n-1) + 2$
+    \STATE rightchild $\leftarrow$ $nd + 1$
+    \STATE index\_of\_largest $\leftarrow$ i
+    \STATE ptr $\leftarrow$ leftchild
+    \WHILE{ptr $\leq$ n and ptr $\neq$ rightchild}
+        \IF{A[ptr] $>$ A[max]}
+            \STATE index\_of\_largest $\leftarrow$ ptr
+        \ENDIF
+        \STATE ptr++
+    \ENDWHILE
+    \IF{index\_of\_largest $\neq$ i}
+        \STATE temp $\leftarrow$ A[index\_of\_largest]
+        \STATE A[index\_of\_largest] $\leftarrow$ A[i]
+        \STATE A[i] $\leftarrow$ temp
+        \STATE MAX\_HEAPIFY(A, index\_of\_largest)
+    \ENDIF
+    \end{algorithmic}
+    \end{algorithm}
+
+    The running time of EXTRACT\_MAX is the same as MAX\_HEAPIFY.
+    To analyze this running time, we state a recurrence relation for the algorithm in the worst case:
+
+    \begin{align*}
+        T(n) &= d + 1 + T(n/d) \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    The base case for T(1) is justified because if we're at the leaf node of A, then
+    lines 1-6 are constant time operations, and the loop from 7-11 would involve
+    no extra steps since ptr would be less than or equal to n. In other words, 
+    there are only constant time operations in the base case.
+
+    The recursive case for T(n) is justified since MAX\_HEAPIFY involves constant
+    time operations plus a loop over d elements, and then a recursive call
+    on only n/d elements, since every recursive call to MAX\_HEAPIFY will 
+    reduce the size of n by the factor d.
+
+    To solve this recurrence relation, we can unroll T(n):
+
+    \begin{align*}
+        T(n) &= d + 1 + T(n/d) \\
+             &= 2(d + 1) + T(n/d^2) \\
+             &= 3(d + 1) + T(n/d^3) \\
+             &= \dots \\
+             &= kd + k + T(n/d^k) \\
+    \end{align*}
+
+    Setting the quantity $n/d^k$ to 1 to solve for $k$ and substituting yields:
+    \begin{align*}
+        T(n) &= d \log_d n + \log_d n + T(1) \\
+    \end{align*}
+    Therefore, T(n) is $O(d \log_d n)$.
+
+    % The form of this recurrence can be solved by the master theorem, case 2. Since $f(n) = \Theta(1)$,
+    % and $\Theta(n^{\log_d 1}) = \Theta(1)$, then by case 2 of the master theorem it follows that 
+    % $T(n) = \Theta(n^{\log_d a} \log n) = \Theta(\log n)$.
+
+    \item Give an efficient implementation of INSERT in a d-ary max heap. Analyze its running time in terms of d and n.
+
+    \textbf{Answer:} 
+    
+    To INSERT a new element into our d-ary heap, we will increase the size of our array and then insert
+    our element at the end of the array. After this, the algorithm for INSERT will be similar to MAX\_HEAPIFY
+    but in reverse to force the value to ``percolate up'' to the correct location in the heap to preserve
+    the heap property.
+
+    \begin{algorithm}[h]
+    \caption{INSERT(A, x)}
+    \begin{algorithmic}[1]
+    \STATE A.heap\_size++
+    \STATE n $\leftarrow$ A.heap\_size
+    \STATE d $\leftarrow$ A.d
+    \STATE A[n] $\leftarrow$ x
+    \STATE i $\leftarrow$ n
+    \STATE parent $\leftarrow$ $ \lfloor \frac{i - 1}{d} \rfloor$
+    \STATE parentval $\leftarrow$ A[parent]
+    \WHILE{$ i > 1$ and parentval $>$ x}
+        \STATE A[i] $\leftarrow$ parentval
+        \STATE A[parent] $\leftarrow$ x
+        \STATE parent $\leftarrow$ $ \lfloor \frac{i - 1}{d} \rfloor$
+        \STATE parentval $\leftarrow$ A[parent]
+    \ENDWHILE
+    \end{algorithmic}
+    \end{algorithm}
+
+    The running time can be expressed as a recurrence relation:
+
+    \begin{align*}
+        T(n) &= \Theta(1) + T(n/d) \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    It it assumed the time to increase the size of A is constant, which it is not in practice. 
+    This depends on the implementation of the array data structure.
+
+    To solve this recurrence relation, we can unroll T(n):
+
+    \begin{align*}
+        T(n) &= 1 + T(n/d) \\
+             &= 2 + T(n/d^2) \\
+             &= 3 + T(n/d^2) \\
+             &= \dots \\
+             &= k + T(n/d^k) \\
+    \end{align*}
+
+    Setting the quantity $n/d^k$ to 1 to solve for $k$ and substituting yields:
+    \begin{align*}
+        T(n) &= \log_d n + T(1) \\
+    \end{align*}
+    Therefore, T(n) is $\Theta(\log_d n)$.
+
+
+    \item Give an efficient implementation of INCREASE-KEY(A, i, k), which flags an error if $k < A[i]$, 
+          but otherwise sets A[i] = k and then updates the d-ary max-heap structure appropriately.
+          Analyze its running time in terms of d and n.
+
+    \textbf{Answer:} 
+    
+    If the new value, k, is
+    not larger than A[PARENT(i)], then replacing A[i] with k is sufficient to preserve the
+    heap property. If on the other hand the value, $k$, is larger than its
+    parent, then merely replacing A[i] with k will break the heap property.
+    But, if $k$ is larger
+    than its parent, then setting A[i] = k and swapping A[i] with A[PARENT(i)] will restore
+    the heap property between i and its parent. We must do this recursively since
+    we do not know if k is also larger than the parent of the parent of i.
+    Moreover, since we are setting a new key k, that key could already exist
+    in our d-ary heap. So, we should make sure when we recursively call INCREASE-KEY,
+    that we pass k+1 to ensure we do not set the same key twice. So, the algorithm is as follows:
+    
+    \begin{algorithm}[h]
+    \caption{INCREASE\_KEY(A, i, k)}
+    \begin{algorithmic}[1]
+    \IF{$k < A[i]$}
+        \STATE raise Exception
+    \ENDIF
+    \STATE parent $\leftarrow$ $ \lfloor \frac{n - 1}{d} \rfloor$
+    \STATE parentval $\leftarrow$ A[parent]
+    \IF{k $>$ parentval}
+        \STATE A[i] $\leftarrow$ parentval
+        \STATE INCREASE\_KEY(A, parent, k+1)
+    \ENDIF
+    \end{algorithmic}
+    \end{algorithm}
+
+    The running time can be expressed as a recurrence relation:
+
+    \begin{align*}
+        T(n) &= \Theta(1) + T(n/d) \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    To solve this recurrence relation, we can unroll T(n):
+
+    \begin{align*}
+        T(n) &= 1 + T(n/d) \\
+             &= 2 + T(n/d^2) \\
+             &= 3 + T(n/d^2) \\
+             &= \dots \\
+             &= k + T(n/d^k) \\
+    \end{align*}
+
+    Setting the quantity $n/d^k$ to 1 to solve for $k$ and substituting yields:
+    \begin{align*}
+        T(n) &= \log_d n + T(1) \\
+    \end{align*}
+    Therefore, T(n) is $\Theta(\log_d n)$.
+
+\end{enumerate}
+
+
+\subsection*{Problem 6-3}
+An m x n Young tableau is an m x n matrix such that the entries of each row are in sorted order from
+left to right and the entries of each column are in sorted order from top to bottom. Some of the entries of a Young
+tableau may be $\infty$, which we treat as nonexistent elements. Thus, a Young tableau can be used to hold 
+$r \leq m n$ finite numbers.
+
+
+\begin{enumerate}
+    \item Draw a 4 x 4 Young tableau containing the elements \{ 9, 16, 3, 2, 4, 8, 5, 14, 12 \}.
+    \[
+        \begin{bmatrix}
+        2  & 3 & 4    & 5  \\
+        8  & 9 & 12   & 14 \\
+        16 & \infty & \infty    & \infty  \\
+        \infty  & \infty & \infty    & \infty
+        \end{bmatrix}
+    \]
+
+    \item Argue that an m x n Young tableau Y is empty if $Y[1, 1] = \infty$. Argue that Y is full
+          (contains m n elements) if $Y[m, n] < \infty$.
+
+    \textbf{Answer:}
+    
+          If the first element is $\infty$, then any element to the right of that element is also $\infty$
+          by definition. Similarly, by definition any element beneath the first element is also $\infty$.
+          By recursive reasoning, every element must be $\infty$ since the first row and first column are
+          all $\infty$. So, the array must be empty.
+
+          If $Y[m, n] < \infty$, then any value to the left of $Y[m, n]$ must also be less than infinity
+          and any value above $Y[m, n]$ must also be less than infinity. By recursive reasoning, 
+          therefore, all values are less than infinity, which by definition is what it means for 
+          the array to be full.
+
+    \item Give an algorithm to implement EXTRACT-MIN on a nonempty m x n Young tableau that runs in
+          O(m + n) time. Your algorithm shoulld use a recursive subroutine that solves an m x n problem by recursively
+          solving either an (m - 1) x n or an m x (n - 1) subproblem. (Hint: Think about MAX-HEAPIFY).
+          Define T(p), where p = m + n Young Tableau. Give and solve a recurrence for T(p) that yields the O(m + n)
+          time bound.
+
+    \textbf{Answer:}
+
+    To extract the min efficiently, we would like to replace the minimum with the next smallest
+    value. This way, we preserve the properties of the Young tableau. To find the next smallest
+    value of n, we must compare n to its neighbor to its right and beneath it. If the smaller
+    is beneath n, then we can EXTRACT\_MIN on the matrix beneath n, and if the smaller is to 
+    the right of n, then we can EXTRACT\_MIN on the right submatrix. If we've successfully
+    called EXTRACT\_MIN on one of these submatrices, then that submatrix is itself ordered
+    and its smallest element removed. Once we have this smallest element, we can then replace
+    absolute min with that smallest element. This recursion stops only if and only if
+    there is no element beneath or to the right of n (i.e. we've hit the corner).
+    The recursive algorithm is below:
+
+    \begin{algorithm}[h]
+    \caption{EXTRACT\_MIN(T, m=1, n=1)}
+    \begin{algorithmic}[1]
+        \STATE min $\leftarrow$ T(m, n)
+        \IF{m $<$ T.numrows and (n == T.numcols or T(m, n+1) $<$ T(m+1, n))}
+            \STATE T(m, n) $\leftarrow$ EXTRACT\_MIN(T, m+1, n)
+        \ELSIF{n $<$ T.numcols and (m == T.numrows or T(m+1, n) $<$ T(m, n+1))}
+            \STATE T(m, n) $\leftarrow$ EXTRACT\_MIN(T, m, n+1)
+        \ENDIF
+        \STATE return min
+    \end{algorithmic}
+    \end{algorithm}
+
+    The running time can be expressed as a recurrence relation:
+
+    \begin{align*}
+        T(p) &= T(m+n)\\
+        T(m+n) &= \Theta(1) + T(m+n-1) \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    To solve this recurrence relation, we can unroll T(m+n):
+
+    \begin{align*}
+        T(m+n) &= 1 + T(m+n-1) \\
+               &= 2 + T(m+n-2) \\
+               &= 3 + T(m+n-3) \\
+               &= \dots \\
+               &= k + T(m+n-k)
+    \end{align*}
+
+    Setting the quantity $m+n-k$ to 1 to solve for $k$ and substituting yields:
+    \begin{align*}
+        T(n) &= m+n-1 + T(1)
+    \end{align*}
+    Therefore, $T(p) = T(m+n) = O(m+n)$
+
+    \item Show how to insert a new element into a nonfull m x n Young tableau in O(m + n) time.
+
+    \textbf{Answer:}
+
+    To insert into a \textit{nonfull} Young tableau, we will insert the element at the last position,
+    then check recursively if we need to swap that value with the larger of its neighbors.
+    The algorithm is below:
+
+    \begin{algorithm}[h]
+    \caption{INSERT(A, x, m=A.numrows, n=A.numcols)}
+    \begin{algorithmic}[1]
+    \STATE A[m][n] $\leftarrow$ x
+    \IF{m $>$ 1 and A[m-1][n] $>$ x and A[m-1][n] $>$ A[m][n-1]}
+        \STATE INSERT(A, x, m-1, n)
+        \STATE A[m][n] $\leftarrow$ A[m-1][n]
+    \ENDIF
+    \IF{n $>$ 1 and A[m][n-1] $>$ x and A[m][n-1] $>$ A[m-1][n]}
+        \STATE INSERT(A, x, m, n-1)
+        \STATE A[m][n] $\leftarrow$ A[m][n-1]
+    \ENDIF
+    \end{algorithmic}
+    \end{algorithm}
+
+    The following is the recurrence relation, stated in terms of m+n:
+
+    \begin{align*}
+        T(m+n) &= \Theta(1) + T(m+n-1) \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    To solve this recurrence relation, we can unroll T(m+n):
+
+    \begin{align*}
+        T(m+n) &= 1 + T(m+n-1) \\
+               &= 2 + T(m+n-2) \\
+               &= 3 + T(m+n-3) \\
+               &= \dots \\
+               &= k + T(m+n-k)
+    \end{align*}
+
+    Setting the quantity $m+n-k$ to 1 to solve for $k$ and substituting yields:
+    \begin{align*}
+        T(n) &= m+n-1 + T(1)
+    \end{align*}
+    Therefore, $T(m+n) = O(m+n)$
+    
+    \item Using no other sorting methods as a subroutine, show how to use an n x n Young tableau to sort $n^2$ numbers
+          in $O(n^3)$ time.
+    
+    \textbf{Answer:}
+
+    We can sort $n^2$ by iterating over all of these elements and inserting into an empty Young tableau, $A$.
+    $A$ will be a sorted array.
+
+    \begin{algorithm}[h]
+    \begin{algorithmic}[1]
+        \caption{TABLEAU\_SORT(n)}
+        \STATE A $\leftarrow$ new Array()
+        \FOR{x in n}
+            \STATE INSERT(A, x)
+        \ENDFOR
+        \STATE return A
+    \end{algorithmic}
+    \end{algorithm}
+
+    If there are $n^2$ elements passed to TABLEAU\_SORT, then since INSERT runs in O(n+m) time, and
+    since the resultant matrix will be square matrix of size n, the runtime of TABLEAU\_SORT will be
+    $O(n^2 \times 2n) = O(n^3)$.
+
+    \item Give an O(m + n)-time algorithm to determine whether a given number is stored in a given m x n Young tableau
+    
+    \textbf{Answer:}
+
+    The recursive solution considers three possibilities. First, if target value is greater than the 
+    right lower diagonal element, then the value to seek \textit{must} be a value which is 
+    somewhere from (k, k) to (m, n). The recursion across the diagonal will eventually stop at some diagonal
+    index, k, after which the next diagonal is too large.
+    At that point, we have ruled out the entire submatrix from (0, 0) to (k, k) and the
+    submatrix from (k, k) to (m, n). But this is only half of all the elements in the matrix.
+    We must still consider the submatrix from (k, 1) to (m, k) and the submatrix from (1, k) to (k, n). Since,
+    these submatrices are completely orthogonal to one-another, there is no more room
+    for optimization and we return the OR of both.
+
+    \begin{algorithm}[h]
+    \begin{algorithmic}[1]
+        \caption{CONTAINS(A, x, m=1, n=1)}
+        \IF{m $>$ A.numrows or n $>$ A.numcols}
+            \STATE return FALSE
+        \ENDIF
+        \IF{A[m][n] == x}
+            \STATE return TRUE
+        \ENDIF
+        \IF{m $<$ A.numrows and n $<$ A.numcols and x $>$ A[m+1][n+1]}
+            \STATE return CONTAINS(A, x, m+1, n+1)
+        \ENDIF
+        \STATE return CONTAINS(A, x, m+1, 1) or CONTAINS(A, x, 1, n+1)
+    \end{algorithmic}
+    \end{algorithm}
+
+    In the worst-case analysis, the first diagonal we check is too large, forcing the
+    algorithm to check the first row and first column completely.
+    It will check these sequentially and not find the value, thus taking m+n steps. 
+    If instead the worst-case scenario is when the value is larger than all the diagonals,
+    it would only take max(m, n) steps, which is clearly fewer.
+
+    The recurrence relation for the worst case scenario is:
+
+    \begin{align*}
+        T(m+n) &= \Theta(1) + T(n + m - 1) \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    To solve this recurrence relation, we can unroll T(m+n):
+
+    \begin{align*}
+        T(m+n) &= 1 + T(m+n-1) \\
+               &= 2 + T(m+n-2) \\
+               &= 3 + T(m+n-3) \\
+               &= \dots \\
+               &= k + T(m+n-k)
+    \end{align*}
+
+    Setting the quantity $m+n-k$ to 1 to solve for $k$ and substituting yields:
+    \begin{align*}
+        T(n) &= m+n-1 + T(1)
+    \end{align*}
+    Therefore, $T(m+n) = O(m+n)$
+
+\end{enumerate}
+
+\subsection*{Exercise 11.2-3}
+
+\textbf{Question:} Professor Marley hypothesizes that he can obtain substantial performance gains by
+modifying the chaining scheme to keep each list in sorted order. How does the professor's 
+modification affect the running time for successful searches, unsuccessful
+searches, insertions, and deletions?
+
+\noindent \textbf{Answer:} 
+I will assume the data structures used are doubly linked lists. The hashing to determine 
+into which bucket to place a given value is constant time. Therefore, when comparing
+the running time of these four operations with both approaches, we must consider
+only the running time of these operations on the different data structures.
+
+In the worst case analysis, we will be inserting all the new values into the same bucket.
+Thus, the right way to analyze these two choices is just to analyze the running time of
+the operations on sorted and unsorted lists. The only operation that will be faster
+for the unsorted list is insertion. The rest of the operations will be linear for unsorted.
+All the operations can be $\Theta(n)$ for a sorted list.
+
+\begin{table}[h]
+\captionsetup{labelfont=it,justification=centering} 		%%% Puts label font in italics, must be done for all figures %%%
+\begin{tabular}{|l|l|l|} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+    \hline
+    & \textbf{UNSORTED} & \textbf{SORTED}
+    \tabularnewline\hline 
+    \textbf{SUCCESSFUL SEARCH(X)}        & $\Theta(n)$ & $\Theta(n)$ 
+    \tabularnewline\hline
+    \textbf{UNSUCCESSFUL SEARCH(X)}      & $\Theta(n)$ & $\Theta(n)$ 
+    \tabularnewline\hline
+    \textbf{INSERT(X)}                   & $\Theta(1)$ & $\Theta(n)$
+    \tabularnewline\hline
+    \textbf{DELETE(X)}                   & $\Theta(n)$ & $\Theta(n)$
+    \tabularnewline\hline
+\end{tabular}
+\end{table}
+
+\subsection*{Problem 10-1}
+
+\textbf{Question:} 
+For each of the four types of lists in the following table, what is the asymptotic
+worst-case running time for each dynamic-set operation listed?
+
+\textbf{Answer:} 
+
+\begin{table}[h]
+\captionsetup{labelfont=it,justification=centering} 		%%% Puts label font in italics, must be done for all figures %%%
+\begin{tabular}{ | l | p{2cm} | p{2cm} | p{2cm} | p{2cm} | } % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+    \hline
+    & \textbf{unsorted, singly linked} & \textbf{sorted, singly linked} & \textbf{unsorted, doubly linked} & \textbf{sorted, doubly linked}
+    \tabularnewline\hline
+    \textbf{SEARCH(L, k)}      &$\Theta(n)$ & $\Theta(n)$ & $\Theta(n)$ & $\Theta(n)$
+    \tabularnewline\hline
+    \textbf{INSERT(L, x)}      &$\Theta(1)$ & $\Theta(n)$ & $\Theta(1)$ & $\Theta(n)$
+    \tabularnewline\hline
+    \textbf{DELETE(L, x)}      &$\Theta(n)$ & $\Theta(n)$ & $\Theta(1)$&$\Theta(1)$
+    \tabularnewline\hline
+    \textbf{SUCCESSOR(L, x)}   &$\Theta(n)$ & $\Theta(1)$ & $\Theta(n)$&$\Theta(1)$
+    \tabularnewline\hline
+    \textbf{PREDECESSOR(L, x)} &$\Theta(n)$ & $\Theta(n)$ & $\Theta(n)$&$\Theta(1)$
+    \tabularnewline\hline
+    \textbf{MINIMUM(L)}        &$\Theta(n)$ & $\Theta(1)$ & $\Theta(n)$&$\Theta(1)$
+    \tabularnewline\hline
+    \textbf{MAXIMUM(L)}        &$\Theta(n)$ & $\Theta(n)$ & $\Theta(n)$&$\Theta(1)$
+    \tabularnewline\hline
+\end{tabular}
+\end{table}
+
+% \begin{figure}[!htb]
+% \centering
+% \includegraphics[width=5cm]{counterexample.png}
+% \caption{Counterexample}
+% \label{counterexample}
+% \end{figure}
+
+\end{document}

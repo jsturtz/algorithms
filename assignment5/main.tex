@@ -1,0 +1,559 @@
+\documentclass[]{book}
+
+%These tell TeX which packages to use.
+\usepackage{array,epsfig}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsxtra}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{color}
+
+% JORDAN ADDED THESE
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+
+\usepackage[labelsep=period,singlelinecheck=false]{caption}   %%% Used to manipulate captions, puts period after figure number, and aligns captions to the left. %%%
+\usepackage{tabularx}  		%%% Allows you to construct tables that extend to page margins %%%
+\usepackage{subcaption} 			%%% used to manipulate subcaptions %%%
+
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{multirow}
+% -----------------------------------------
+
+
+%Here I define some theorem styles and shortcut commands for symbols I use often
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}
+\newtheorem*{rmk}{Remark}
+\newtheorem{lem}{Lemma}
+\newtheorem*{joke}{Joke}
+\newtheorem{ex}{Example}
+\newtheorem*{soln}{Solution}
+\newtheorem{prop}{Proposition}
+
+\newcommand{\lra}{\longrightarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\surj}{\twoheadrightarrow}
+\newcommand{\graph}{\mathrm{graph}}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\Z}{\bb{Z}}
+\newcommand{\Q}{\bb{Q}}
+\newcommand{\R}{\bb{R}}
+\newcommand{\C}{\bb{C}}
+\newcommand{\N}{\bb{N}}
+\newcommand{\M}{\mathbf{M}}
+\newcommand{\m}{\mathbf{m}}
+\newcommand{\MM}{\mathscr{M}}
+\newcommand{\HH}{\mathscr{H}}
+\newcommand{\Om}{\Omega}
+\newcommand{\Ho}{\in\HH(\Om)}
+\newcommand{\bd}{\partial}
+\newcommand{\del}{\partial}
+\newcommand{\bardel}{\overline\partial}
+\newcommand{\textdf}[1]{\textbf{\textsf{#1}}\index{#1}}
+\newcommand{\img}{\mathrm{img}}
+\newcommand{\ip}[2]{\left\langle{#1},{#2}\right\rangle}
+\newcommand{\inter}[1]{\mathrm{int}{#1}}
+\newcommand{\exter}[1]{\mathrm{ext}{#1}}
+\newcommand{\cl}[1]{\mathrm{cl}{#1}}
+\newcommand{\ds}{\displaystyle}
+\newcommand{\vol}{\mathrm{vol}}
+\newcommand{\cnt}{\mathrm{ct}}
+\newcommand{\osc}{\mathrm{osc}}
+\newcommand{\LL}{\mathbf{L}}
+\newcommand{\UU}{\mathbf{U}}
+\newcommand{\support}{\mathrm{support}}
+\newcommand{\Oset}{\varnothing}
+\newcommand{\st}{\ni}
+\newcommand{\wh}{\widehat}
+
+%Pagination stuff.
+\setlength{\topmargin}{-.3 in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textheight}{9.in}
+\setlength{\textwidth}{6.5in}
+\pagestyle{empty}
+
+
+
+\begin{document}
+
+
+\begin{center}
+{\Large COMP 775 - Advanced Design and Analysis of Algorithms \hspace{0.5cm} Assignment 3}\\
+\textbf{Jordan Sturtz}\\ %You should put your name here
+3-17-2023 %You should write the date here.
+\end{center}
+
+\vspace{0.2 cm}
+
+\subsection*{Problem 4-5}
+
+\textbf{Question} 
+Professor Diogenes has n supposedly identical integrated-circuit chips that in principle are capable of testing each other. 
+The professor’s test jig accommodates two
+chips at a time. When the jig is loaded, each chip tests the other and reports whether
+it is good or bad. A good chip always reports accurately whether the other chip is
+good or bad, but the professor cannot trust the answer of a bad chip. Thus, the four
+possible outcomes of a test are as follows:
+
+\begin{table}[H]
+\captionsetup{labelfont=it,justification=centering} 		%%% Puts label font in italics, must be done for all figures %%%
+\begin{tabular}{l l l} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+    \textbf{Chip A says} & \textbf{Chip B Says} & \textbf{Conclusion}
+    \tabularnewline\hline
+    B is good        & A is good & both are good, or both are bad
+    \tabularnewline
+    B is good        & A is bad & at least one is bad
+    \tabularnewline
+    B is bad        & A is good & at least one is bad
+    \tabularnewline
+    B is bad        & A is bad & at least one is bad
+    \tabularnewline
+\end{tabular}
+\end{table}
+
+\begin{enumerate}[label=\alph*.]
+    \item Show that if at least n/2 chips are bad, the professor cannot necessarily determine
+          which chips are good using any strategy based on this kind of pairwise test.
+          Assume that the bad chips can conspire to fool the professor
+
+    \textbf{Answer:} 
+
+    We will solve with mathematical induction. 
+   
+    \begin{itemize}
+        \item \textbf{Base Case}
+        
+        Suppose there are only two chips, at least half
+        of which are defective, i.e. one or both are defective.
+
+        There are two possibilities.
+        \begin{enumerate}
+            \item Suppose both chips are defective. In that case, either both chips say that the
+            other is good, or at least one says the other is bad. If both say that they are good,
+            then the professor can conclude only that \textit{both are good or both are bad.}
+            If at least one chip says the other is bad, then the professor can conclude only that 
+            \textit{at least one is bad}.
+
+            \item Suppose only one chips is defective. 
+            In that case, the professor can conclude only that
+            \textit{at least one is bad}.
+        \end{enumerate}
+
+        In either case, the professor will conclude from this test either that
+        \textit{both are good or both are bad} OR that \textit{at least one is bad}.
+        In other words, for $n=2$, the professor cannot determine which among his chips are good.
+        This proves the base case.
+
+        \item \textbf{Recursive Case} 
+        Now suppose the professor is already uncertain about $n$ chips, at least half of which are
+        defective where $n \geq 2$. If another chip was added such that $\lceil \frac{n+1}{2} \rceil$ chips are defective,
+        can the professor determine which among the $n+1$ chips are good?
+
+        The professor already cannot determine from the $n$ chips which are defective. Thus, if the professor
+        cannot determine the defectiveness of the new chip, then they cannot determine the
+        defectiveness of all $n+1$ chips.
+
+        The newly added chip is either defective or it isn't:
+        \begin{enumerate}
+            \item
+            Suppose the new chip is not defective.
+            If the chip is not defective, the professor can attempt to pair this chip with one of their
+            chips from the $n$ chips of indeterminate defectiveness:
+            \begin{enumerate}
+                \item Suppose the second chip chosen from $n$ is also not defective. Then, the professor can
+                only conclude that 
+                \textit{both are good or both are bad}.
+                \item Suppose instead the second chip chosen from $n$ is defective. Then, the professor can
+                only conclude that either \textit{both are good or both are bad} or \textit{at least one is bad}.
+            \end{enumerate}
+
+            Therefore, if the new chip is not defective, the professor once again will not be able to determine
+            whether this is so.
+
+            \item Now suppose the new chip is defective. In that case, regardless of what it is paired with,
+            the professor will either conclude that 
+            \textit{both are good or both are bad} or \textit{at least one is bad}.
+            In other words, in this case as well, the professor cannot determine whether the new chip
+            is defective.
+        \end{enumerate}
+
+        Therefore, professor will be unable to determine the defectiveness of the new chip.
+        Since the professor cannot determine the defectiveness of the new chip, we can conclude
+        the recursive case: that if the professor is unsure about $n$ chips where 
+        $\lceil \frac{n}{2} \rceil$ chips are defective, 
+        then the professor is also unsure about $n+1$ chips 
+        where $\lceil \frac{n+1}{2} \rceil$ are defective.
+    
+    \end{itemize}
+
+    Since the professor cannot determine the defectiveness in the base case, i.e. with two chips,
+    and the professor cannot determine the defectiveness in the recursive case, then it is hopeless.
+    There is no $n$ for which the professor will be able to determine the defectiveness of his chips.
+
+    \item Consider the problem of finding a single good chip from among $n$ chips,
+          assuming that more than n/2 of the chips are good. Show that $\lfloor n/2 \rfloor$
+          pairwise tests are sufficient to reduce the problem to one of nearly half the size.
+
+    \textbf{Answer:}
+
+        We need a method to wittle down the size of
+        $n$ while retaining the key property that more than half of $n$ are good chips.
+
+        What we do is that we arbitrarily match each chip in $n$ with another chip in $n$. If there
+        is an odd number of chips, then we set aside one chip from this pairing. Since we stipulate
+        that more than half are good chips, if we do this one-to-one matching and we have odd chips,
+        it must be the case if we leave out the one-off chip that the number of chips in
+        the pairings are at least half good.
+
+        The goal is to eliminate chips from consideration.
+        When we pair these chips and pairwise test them, there are two possibilities
+        and two different rules for removing chips from consideration:
+        \begin{itemize}
+            \item At least one chip reports that the other is bad.
+            This means that \textit{at least one is bad}. If at least one
+            chip is bad, then if we ignore these two chips in subsequent comparisons, i.e.
+            \textbf{remove both chips from consideration completely}, then the rest of the chips must
+            also still contain at least half good chips.
+
+            \item Both chips agree that the other is good. In this case, there are two possibilities.
+            Either both chips are good, or both are bad. Either way, we know that these chips share
+            the same state, so we lose no information by keeping both chips in consideration.
+            So, \textbf{we discard one chip from this pairwise test}.
+        \end{itemize} 
+
+        After doing this for our initial pairs, we will have some subset of our chips left, i.e.
+        those that agreed with each other that the other is good. Moreover, this subset is
+        guaranteed to have at least half good chips. We recursively apply this rule until
+        we have one chip or no chips remaining.
+        
+        In the case of this algorithm for the
+        odd-numbered $n$, there are two possibilities. The first is that we end up by chance pairing up
+        every remaining good chip with a bad chip, thus causing all the pairs to be discarded, leaving
+        just the odd-one out. In that case, the odd-one out must be good, since we stipulated 
+        that more than half the chips are good. The second possibilitiy is
+        that by the end of the recursion, we have one remaining chip in our pairs,
+        in which case that chip must be good, since once again we stipulated that
+        more than half the chips are good. Either way, we can know
+        with certainty at least one good chip.
+
+        The reason that $\lfloor n/2 \rfloor$ is sufficient to reduce the problem to one of 
+        nearly half the size is that during the recursion we eliminate at least one 
+        chip from consideration for each pairwise test, so each pass over the data in the worst case
+        halves the number of possibilities.
+        
+    \item Show that the good chips can be identified with $\Theta(n)$ pairwise tests, assuming that 
+          more than n/2 of the chips are good. Give and solve the recurrence that describes the
+          number of tests.
+
+    \textbf{Answer:} 
+    
+    Once we find a single good chip, it can be used with $n-1$ more pairwise tests
+    to identify all the good and bad chips. Thus, we need only apply the solution discovered
+    in part (b), then check that good chip against every other chip.
+
+    To see that runtime is $\Theta(n)$ pairwise tests, consider that during the recursion,
+    each pass over the data eliminates at least half of the possibilities and that
+    the number of steps to perform during the recursion is $\lfloor n / 2 \rfloor$. Thus,
+    we can express the recurrence relation as such:
+    \begin{align*}
+        T(N) &\leq T(\lceil N/2 \rceil) + \lfloor n / 2 \rfloor \\
+        T(1) &= \Theta(1)
+    \end{align*}
+
+    By the master theorem, case 2, $T(n)$ must be $O(n)$. Once we have identified the good chip,
+    we need only perform n - 1 more tests, so the total time is $O(n) + n -1$, which is $\Theta(n)$.
+
+\end{enumerate}
+
+\subsection*{Problem 4-6}
+
+\textbf{Question} 
+An $ m \times n$ array $A$ of real numbers is a \textbf{Monge array} if for all i, j, k, and l such
+that $1 \leq i < k \leq m$ and $1 \leq j < l \leq n$, we have
+\begin{align*}
+    A[i, j] + A[k, l] \leq A[i, l] + A[k, j]
+\end{align*}
+
+In other words, whenever we pick two rows and two columns of a Monge array and
+consider the four elements at the intersections of the rows and the columns, the sum
+of the upper-left and lower-right elements is less than or equal to the sum of the
+lower-left and upper-right elements. For example, the following array is Monge:
+
+\begin{table}[H]
+\centering
+\captionsetup{labelfont=it,justification=centering} 		%%% Puts label font in italics, must be done for all figures %%%
+\begin{tabular}{l l l l l} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+    10 & 17 & 13 & 28 & 23  \tabularnewline
+    17 & 22 & 16 & 29 & 23  \tabularnewline
+    24 & 28 & 22 & 34 & 24  \tabularnewline
+    11 & 13 & 6 & 17 & 7    \tabularnewline
+    45 & 44 & 32 & 37 & 23  \tabularnewline
+    36 & 33 & 19 & 21 & 6   \tabularnewline
+    75 & 66 & 51 & 53 & 34  \tabularnewline
+\end{tabular}
+\end{table}
+
+\begin{enumerate}[label=\alph*.]
+    \item Prove that an array is Monge if and only if for all $i~=~1,~2,~...,~m~-~1$
+          and $j~=~1,~2,~...,~n~-~1$, we have
+
+    \begin{align*}
+        A[i, j] + A[i+1, j+1] \leq A[i, j+1] + A[i+1, j]
+    \end{align*}
+
+    (\textit{Hint}: For the ``if'' part, use induction separately on rows and columns.)
+
+    \textbf{Answer:}
+
+    First, we prove that if for all $i~=~1,~2,~...,~m~-~1$
+    and $j~=~1,~2,~...,~n~-~1$, then array $A$ (shown above) is Monge.
+
+    By definition, $i$ must be positive. Therefore, $i+1$
+    must be greater than $i$. Let $k = i+1$. Likewise, since $j$ is positive, $j+1$
+    must be greater than $j$. Let $l = j+1$. By substituting into the above expression,
+    we get the definition of a Monge.
+
+    Now, we prove converse that if an array $A$ is Monge, then for all $i~=~1,~2,~...,~m~-~1$
+    and $j~=~1,~2,~...,~n~-~1$, then array shown above is true.
+
+    If we substitute
+    $i+1$ for $k$ and $j+1$ for $l$, then we get the definition above, which shows that
+    if $A$ is Monge, then the above expression holds true. We have therefore shown
+    both sides of the biconditional expression, which proves the theorem.
+
+    \item The following array is not Monge. Change one element in order to make it 
+          Monge (\textit{Hint:} Use part (a).)
+
+        \begin{table}[H]
+        \centering
+        \captionsetup{labelfont=it,justification=centering} 		%%% Puts label font in italics, must be done for all figures %%%
+        \begin{tabular}{l l l l} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+            37 & 23 & 22 & 32   \tabularnewline
+            21 & 6 & 7 & 10     \tabularnewline
+            53 & 34 & 30 & 31   \tabularnewline
+            32 & 13 & 9 & 6     \tabularnewline
+            43 & 21 & 15 & 8    \tabularnewline
+        \end{tabular}
+        \end{table}
+
+    \textbf{Answer:} 
+
+        \begin{table}[H]
+        \centering
+        \captionsetup{labelfont=it,justification=centering} 		%%% Puts label font in italics, must be done for all figures %%%
+        \begin{tabular}{l l l l} % <-- Alignments: 1st column left, 2nd middle and 3rd right, with vertical lines in between
+            37 & 23 & \textbf{24} & 32   \tabularnewline
+            21 & 6 & 7 & 10     \tabularnewline
+            53 & 34 & 30 & 31   \tabularnewline
+            32 & 13 & 9 & 6     \tabularnewline
+            43 & 21 & 15 & 8    \tabularnewline
+        \end{tabular}
+        \end{table}
+
+    \item Let $f(i)$ be the index of the column containing the leftmost minimum element of row $i$.
+          Prove that $f(1) \leq f(2) \leq \dots \leq f(m)$ for any $m \times n$ Monge array.
+
+    \textbf{Answer:} 
+
+    From the theorem proved in (a), we can say that:
+    \begin{align*}
+        A[i, f(i)] + A[i+1, f(i)+1] \leq A[i+1, f(i)] + A[i, f(i)+1]
+    \end{align*}
+
+    In other words, whatever the index column of the smallest element in row $i$, it will
+    be the case that the Monge property holds for the next index.
+
+    Now if it's true that $f(i)$ is the index of the column containing the leftmost minimum element of row $i$,
+    then the following is also true:
+    \begin{align*}
+        A[i, f(i)] \leq A[i, f(i)+1]
+    \end{align*}
+    
+    In other words, the value immediately to the right of $A[i, f(i)]$
+    is obviously larger or equal if $A[i, f(i)]$ is the smallest minimum value in row $i$.
+    
+    We can then subtract $A[i, f(i)]$ from the left-hand side of the above equation and subtract
+    $A[i, f(i)+1]$ from the right-hand side, since this will maintain the truth of the inequality:
+
+    \begin{align*}
+        A[i, f(i)] + A[i+1, f(i)+1] &\leq A[i+1, f(i)] + A[i, f(i)+1] \\
+        A[i, f(i)] + A[i+1, f(i)+1] - A[i, f(i)] &\leq A[i, f(i)+1] + A[i+1, f(i)] - A[i, f(i)+1] \\
+        A[i+1, f(i)+1] &\leq A[i+1, f(i)]
+    \end{align*}
+
+    This statement, $A[i+1, f(i)+1] \leq A[i+1, f(i)]$, proves our theorem, since it says 
+    in the next row, the value to the right of $f(i)$ must be less than or equal to the value
+    at $f(i)$, which is to say that the index of the minimum smallest value in the next row
+    must be greater than or equal to the index in the current row. In other words, for any
+    $f(i)$, $f(i) \leq f(i+1)$.
+
+    \item Here is a description of a divide-and-conquer algorithm that computes the leftmost minimum
+          element in each row of an $m \times n$ Monge array $A$:
+          \begin{itemize}
+            \item Construct a submatrix $A'$ of $A$ consisting of the even-numbered rows of $A$.
+                  Recursively determine the leftmost minimum for each row of $A'$.
+                  Then compute the leftmost minimum in the odd-numbered rows of $A$.
+          \end{itemize}
+          Explain how to compute the leftmost minimum in the odd-numbered rows of A
+          (given that the leftmost minimum of the even-numbered rows is known) in $O(m+n)$.
+
+    \textbf{Answer:} 
+
+          Once the indices of the minimum values in the even-numbered rows
+          are known, we do not have to check all columns for the odd-numbered rows.
+          We know this because of the theorem we proved in part (c). In fact,
+          the only columns we need to check for row $i$ are the columns
+          between $f(i-1)$ and $f(i+1)$, since the theorem in part (c) proved
+          that $f(i-1) \leq f(i) \leq f(i+1)$ where $i>1$ and $f(i)$ is the
+          function of the $i$th row that returns the index of the minimum leftmost value in
+          row $i$.
+
+          Let even\_minimums contain the leftmost index columns, [f(0), f(2), f(4)...f(m)], for 
+          an $m \times n$ matrix. A simple algorithm to find the
+          minimums for the odd rows, [f(1), f(3), f(5)...] is the following:
+
+            \begin{algorithm}[H]
+            \caption{get\_odd\_mins(A, even\_mins)}
+            \begin{algorithmic}[1]
+            \STATE odds $\leftarrow$ odd rows from A
+            \STATE odd\_mins $\leftarrow$ []
+            \FOR{i, row in enumerate(odds)}
+                \STATE colstart $\leftarrow$ even\_mins[i]
+                \STATE colend $\leftarrow$ even\_mins[i+1]
+                \STATE mincol $\leftarrow$ colstart
+                \STATE min $\leftarrow$ row[mincol]
+                \FOR{i in range(colstart, colend)}
+                    \IF{row[i] $<$ min}
+                        \STATE mincol $\leftarrow$ i
+                        \STATE min $\leftarrow$ row[i]
+                    \ENDIF
+                \ENDFOR
+                \STATE odd\_mins $\leftarrow$ odd\_mins + [mincol]
+            \ENDFOR
+            \STATE return odd\_mins
+            \end{algorithmic}
+            \end{algorithm}
+
+        In other words, we only check the columns between $f(i-1)$ and $f(i+1)$ since the
+        smallest value must be between those columns.
+
+        The for loop iterates over $\lfloor m/2 \rfloor$ elements,
+        doing constant time operations until we hit the inner for loop.
+        This inner for-loop will iterate over a certain subset of
+        columns. Specifically, each for-loop will iterate over
+        a unique subset of columns, since the column position
+        of the minimum value in each row is ``sandwhiched'' between
+        two columns. In other words, if we sum the number of
+        loops over columns across the entire outer for loop,
+        we would find a total of $n$ steps. Thus,
+        the outer for loop can be thought of as adding 
+        $\lfloor m/2 \rfloor$ steps plus $n$ steps, which
+        is to say, $O(m+n)$.
+
+    \item Write the recurrence describing the running time of the algorithm described in part (d).
+          Show that its solution is $O(m + n\log m)$
+
+        \textbf{Answer:} 
+
+          The algorithm described in part (d) involves finding the minimums of the evens,
+          then finding the minimums of the odds. The running time to find the minimum
+          of the odds is $O(m+n$), thus we need only to find the running time
+          to find the minimum of the evens. The algorithm involves
+          a simple divide-and-conquer approach, which halves the number 
+          of elements in the matrix. Thus, our recurrence is the following:
+
+            % \begin{algorithm}[H]
+            % \caption{get\_even\_mins(A, even\_mins)}
+            % \begin{algorithmic}[1]
+            % \STATE evens $\leftarrow$ even rows from A
+            % \STATE return get\_mins(evens)
+            % \end{algorithmic}
+            % \end{algorithm}
+
+            % \begin{algorithm}[H]
+            % \caption{get\_mins(A, colstart=0)}
+            % \begin{algorithmic}[1]
+            % \STATE numrows $\leftarrow$ len(A)
+            % \STATE numcols $\leftarrow$ len(A[0])
+            % \STATE \# Base Case
+            % \IF{numrows == 1}
+            %     \STATE mincol $\leftarrow$ colstart
+            %     \STATE min $\leftarrow$ A[0][colstart]
+            %     \FOR{i in range(colstart, numcols)}
+            %         \IF{A[0][i] $<$ min}
+            %             \STATE mincol $\leftarrow$ i
+            %             \STATE min $\leftarrow$ A[0][mincol]
+            %         \ENDIF
+            %     \ENDFOR
+            %     \STATE return [mincol]
+            % \ENDIF
+            % \STATE \# Recursive Case
+            % \STATE midrow $\leftarrow$ int(numrows / 2)
+            % \STATE abovemins $\leftarrow$ get\_mins(A[:midrow], colstart=colstart)
+            % \STATE belowmins $\leftarrow$ get\_mins(A[midrow:], colstart=abovemins[-1])
+            % \STATE return abovemins + belowmins
+            % \end{algorithmic}
+            % \end{algorithm}
+
+            % Analyzing this algorithm into a recurrence relation is tricky.
+            % The base case is dependent on the index of the starting column
+            % to check. For the first recursive call, this value will be 0,
+            % and in subsequent calls, it will start to increase, thus reducing
+            % the work needed in the base case. In fact, each time the base case
+            % is reached, there will be unique column ranges to check, so
+            % once again we can think of this loop over the columns in the base
+            % case as collectively taking $\Theta(n)$ steps. Since we
+            % also have to loop over all $m$ rows to retrieve the odd and
+            % even-numbered rows, we should also add that and make the
+            % time in addition to the recursive calls, $\Theta(m + n)$.
+
+            % The recurrence for this algorithm is as follows:
+
+            \begin{align*}
+                T(m) &= T(m/2) + \Theta(m + n) \\
+                T(m) &= T(m/2) + mc_1 + nc_2
+            \end{align*}
+
+            First, we unroll with different inputs:
+        
+            \begin{align*}
+                T(m)   &= T(m/2) + mc_1 + nc_2 \\
+                T(m/2) &= T(m/4) + \frac{m}{2}c_1 + nc_2 \\
+                T(m/4) &= T(m/8) + \frac{m}{4}c_1 + nc_2 \\
+                        &...
+            \end{align*}
+
+        We substitute recursively to unroll $T(n)$:
+
+        \begin{align*}
+          T(m) &= mc_1 + nc_2 + T(m/2)\\
+               &= \frac{m}{2}c_1 + mc_1 + nc_2 + nc_2 + T(m/2^2)\\
+               &= \frac{m}{4}c_1 + \frac{m}{2}c_1 + mc_1 + nc_2 + nc_2 + nc_2 + T(m/2^3)\\
+               &= mc_1 \sum_{i=0}^{k-1} \frac{1}{2^k} + k nc_2 + T(m/2^k) \\
+               &= mc_1 (2 - \frac{2}{2^k}) + k nc_2 + T(m/2^k) \\
+               &= mc_1 (2 - \frac{2}{m}) + \log_2 m nc_2 + T(1) \\
+               &\leq mc_1 + nc_2 \log_2 m + \Theta(1) \\
+        \end{align*}
+
+        Thus, the running time of $T(m)$ is $O(m + n \log m)$.
+            
+\end{enumerate}
+
+
+\subsection*{Leetcode 1}
+
+    \textbf{Answer:} See leetcode1.txt
+
+\subsection*{Leetcode 2}
+
+    \textbf{Answer:} See leetcode2.txt
+
+\end{document}
