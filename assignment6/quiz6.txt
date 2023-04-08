@@ -1,0 +1,49 @@
+
+def longest_sub_alphabetical(s):
+
+    def recurse_aux(s, memo):
+
+        # memoize
+        if s in memo:
+            return memo[s]
+
+        # base case
+        if len(s) == 1:
+            return s
+
+        # recursive case
+        left = recurse_aux(s[1:], memo)
+        right = recurse_aux(s[:-1], memo)
+        left = s[0] + left if s[0] < left[0] else left
+        right = right + s[-1] if s[-1] > right[-1] else right
+
+        best = left if len(left) > len(right) else right
+        memo[s] = best
+        return best
+
+    return recurse_aux(s, {})
+    
+def longest_sub_alphabetical_bottom_up(s):
+
+    memo = {c:c for c in s}
+    memo[""] = ""
+
+    for window in range(2, len(s)+1):
+
+        for i in range(len(s) - window + 1):
+
+            substring = s[i:i+window]
+
+            left = memo[substring[1:]]
+            right = memo[substring[:-1]]
+
+            left = substring[0] + left if substring[0] < left[0] else left
+            right = right + substring[-1] if substring[-1] > right[-1] else right
+
+            best = left if len(left) > len(right) else right
+            memo[substring] = best
+
+    return memo[s]
+
+print(longest_sub_alphabetical("algorithm"))
+print(longest_sub_alphabetical_bottom_up("algorithm"))
